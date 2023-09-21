@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Card_Game
 {
     internal class Program
-    {
+    { 
         static void Main(string[] args)
         {
             List<Player> players = new List<Player>()
