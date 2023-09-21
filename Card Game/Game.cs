@@ -107,13 +107,13 @@ namespace Card_Game
             _players = players;
         }
 
-        private Card[] CreateDeckForPlayer(ref List<Card> deck, int cardPerPlayer)
+        private Card[] CreateDeckForPlayer(ref List<Card> deck, int cardsPerPlayer)
         {
             Random random = new Random();
             int randomIndex = 0;
-            Card[] deckOfPlayer = new Card[cardPerPlayer];
+            Card[] deckOfPlayer = new Card[cardsPerPlayer];
 
-            for (int i = 0; i < cardPerPlayer; i++)
+            for (int i = 0; i < cardsPerPlayer; i++)
             {
                 randomIndex = random.Next(deck.Count());
                 deckOfPlayer[i] = deck[randomIndex];
