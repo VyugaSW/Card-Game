@@ -81,10 +81,22 @@ namespace Card_Game
             Console.WriteLine($"He takes cards:\n{cardOne}\n{cardTwo}");
             Console.ReadKey();
         }
+
+        public static void DisplayDrawWinMenu(Card cardOne, Card cardTwo)
+        {
+            Console.Clear();
+            Console.WriteLine($"Card {cardOne} == {cardTwo}");
+            Console.WriteLine($"Nobody has won, players will receive their cards back");
+            Console.ReadKey();
+        }
+
+        public static void DisplayMessage(string message)
+        {
+            Console.WriteLine(message);
+            Console.ReadKey();
+        }
     }
 
-
-    internal delegate bool EndDelegate(Player player);
 
     internal class Game
     {
@@ -128,23 +140,58 @@ namespace Card_Game
             else if (player1Card < player2Card)
                 return player2Card;
 
-            throw new Exception();
+            else
+                return null;
+        }
+        private void ExceptionPlayerCardChoiceCatch(ref int variable, Player player)
+        {
+            try
+            {
+                variable = Convert.ToInt32(Console.ReadLine());
+
+                if (variable > player.Deck.Count())
+                    throw new IndexOutOfRangeException();
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException("has choosen index out of range");
+            }
+            catch (FormatException)
+            {
+                throw new FormatException("has choosen uncorrectly format of index");
+            };
         }
         private int PlayerCardChoice(Player player)
         {
             List<Card> playerDeck = player.Deck;
+            int indexOfCard = 0;
 
-            GameDisplay.DisplayPlayerMoveMenu(playerDeck,player);
-            int indexOfCard = Convert.ToInt32(Console.ReadLine());
+            GameDisplay.DisplayPlayerMoveMenu(playerDeck, player);
+
+            try
+            {
+                ExceptionPlayerCardChoiceCatch(ref indexOfCard, player);
+            }
+            catch(Exception ex) { throw ex; }
+
             return indexOfCard;
         }
         private void PlayersMoves(Player player1, Player player2) 
         {
-            int cardIndex1 = PlayerCardChoice(player1);
-            int cardIndex2 = PlayerCardChoice(player2);
+            int cardIndex1;
+            int cardIndex2;
+
+            try
+            {
+                cardIndex1 = PlayerCardChoice(player1);
+                cardIndex2 = PlayerCardChoice(player2);
+            }
+            catch(Exception ex) { throw ex; }
+
 
             Card player1Card = player1.GiveCardOfIndex(cardIndex1);
             Card player2Card = player2.GiveCardOfIndex(cardIndex2);
+
 
             if (ComparePlayersCards(player1Card, player2Card) == player1Card)
             {
@@ -153,11 +200,20 @@ namespace Card_Game
                 player1.TakeOneCard(player1Card);
                 player1.TakeOneCard(player2Card);
             }
-            else
+
+            else if(ComparePlayersCards(player1Card, player2Card) == player2Card)
             {
                 GameDisplay.DisplayPlayerWinMenu(player2, player2Card, player1Card);
 
                 player2.TakeOneCard(player1Card);
+                player2.TakeOneCard(player2Card);
+            }
+
+            else
+            {
+                GameDisplay.DisplayDrawWinMenu(player1Card, player2Card);
+
+                player1.TakeOneCard(player1Card);
                 player2.TakeOneCard(player2Card);
             }
 
@@ -177,22 +233,34 @@ namespace Card_Game
 
             return turnIndex;
         }
-        private void Playing()
+
+        private Player Playing()
         {
             int turnIndex = 0;
-            
-            while (!CheckCountCards(_players[turnIndex]))
+            try
             {
                 PlayersMoves(_players[turnIndex], _players[turnIndex + 1]);
-                turnIndex = ChangeTurnIndex(turnIndex);
             }
+            catch(Exception ex)
+            {
+                GameDisplay.DisplayMessage(ex.Message);
+            }
+
+            turnIndex = ChangeTurnIndex(turnIndex);
+
+            return _players[turnIndex];
+        }
+        private void LoopOfPlaying()
+        {
+            while (!CheckCountCards(Playing()))
+            { continue; }
         }
 
 
         public void Main()
         {
             GiveawayCards();
-            Playing();
+            LoopOfPlaying();
         }
     }
 }
